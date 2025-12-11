@@ -10,6 +10,7 @@ const DATA = [
         "meaning": "We meditate on the glory of that being who has produced this universe; may He enlighten our minds.",
         "sources": [
           { "src": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Gayatri_Mantra.ogg", "type": "audio/ogg" },
+          // Swapped priority: If MP3 fails, this ensures we have a fallback or the player uses OGG if it supports it better
           { "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e5/Gayatri_Mantra.ogg/Gayatri_Mantra.ogg.mp3", "type": "audio/mpeg" }
         ],
         "content": [
@@ -123,7 +124,7 @@ const DATA = [
         "meaning": "Even if one has a beautiful body, a beautiful spouse, fame, and wealth like Mount Meru, if the mind is not surrendered to the Guru's lotus feet, what is the use?",
         "sources": [
           { 
-            "src": "./audio/GuruAshtakam.mp3", 
+            "src": "audio/GuruAshtakam.mp3?v=1", 
             "type": "audio/mpeg" 
           }
         ],
