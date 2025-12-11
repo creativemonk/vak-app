@@ -123,7 +123,7 @@ const DATA = [
         "title": "Guru Ashtakam",
         "meaning": "Even if one has a beautiful body, a beautiful spouse, fame, and wealth like Mount Meru, if the mind is not surrendered to the Guru's lotus feet, what is the use?",
         "sources": [
-          { "src": "vak-app/public/audio/Guru Ashtakam.mp3", "type": "audio/mpeg" }
+          { "src": "vak-app/public/audio/GuruAshtakam.mp3", "type": "audio/mpeg" }
         ],
         "content": [
           { "word": "शरीरं", "trans": "śarīraṁ", "start": 0, "end": 2 },
