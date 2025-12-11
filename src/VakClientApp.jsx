@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 
 // --- DATABASE (Inlined for Preview) ---
-// In your local setup, you can move this array to 'vak_data.js' 
+// NOTE: For your local/GitHub setup, keep this in 'vak_data.js' 
 // and import it using: import DATA from './vak_data';
 
 const DATA = [
@@ -23,10 +23,6 @@ const DATA = [
           {
             "src": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Gayatri_Mantra.ogg",
             "type": "audio/ogg"
-          },
-          {
-            "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e5/Gayatri_Mantra.ogg/Gayatri_Mantra.ogg.mp3",
-            "type": "audio/mpeg"
           }
         ],
         "content": [
@@ -84,10 +80,6 @@ const DATA = [
           {
             "src": "https://upload.wikimedia.org/wikipedia/commons/2/23/Om_Namah_Shivaya_Mantra_Chanting.ogg",
             "type": "audio/ogg"
-          },
-          {
-            "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/23/Om_Namah_Shivaya_Mantra_Chanting.ogg/Om_Namah_Shivaya_Mantra_Chanting.ogg.mp3",
-            "type": "audio/mpeg"
           }
         ],
         "content": [
@@ -109,8 +101,9 @@ const DATA = [
         "meaning": "Even if one has a beautiful body, a beautiful spouse, fame, and wealth like Mount Meru, if the mind is not surrendered to the Guru's lotus feet, what is the use?",
         "sources": [
           {
-            "src": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Gayatri_Mantra.ogg",
-            "type": "audio/ogg"
+            // USING RELATIVE PATH - This expects 'GuruAshtakam.mp3' in 'public/audio/'
+            "src": "audio/GuruAshtakam.mp3", 
+            "type": "audio/mpeg"
           }
         ],
         "content": [
@@ -175,12 +168,16 @@ const VakClientApp = () => {
       return allScripts.find(s => s.id === activeScriptId) || null;
   }, [allScripts, activeScriptId]);
 
-  // 4. Audio Source Helper
+  // 4. Audio Source Helper - Strict checking
   const getAudioSrc = () => {
-    if (!currentScript?.sources?.length) return undefined; // Return undefined, not empty string
+    if (!currentScript?.sources?.length) return "";
+    // Prefer mp3, fallback to whatever is first
     const mp3 = currentScript.sources.find(s => s.type === 'audio/mpeg');
-    return mp3 ? mp3.src : currentScript.sources[0].src;
+    const src = mp3 ? mp3.src : currentScript.sources[0].src;
+    return src;
   };
+
+  const activeAudioSrc = getAudioSrc();
 
   // --- Effects ---
 
@@ -189,16 +186,19 @@ const VakClientApp = () => {
     setIsPlaying(false);
     setActiveWordIndex(-1);
     stopTimeRef.current = null;
-    setErrorMsg(null); // Clear previous errors immediately
+    setErrorMsg(null);
 
-    // SEGMENT LOGIC: Jump to start of this chant
-    if (audioRef.current && currentScript?.content?.length > 0) {
+    // Force reload on script change
+    if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0; 
+        audioRef.current.load(); // Vital for switching tracks without 'key'
+    }
+
+    // SEGMENT LOGIC: Jump to start of this chant (only visual for now)
+    if (currentScript?.content?.length > 0) {
         const startTime = currentScript.content[0].start;
-        // Check if metadata is loaded enough to seek
-        if (audioRef.current.readyState > 0) {
-            audioRef.current.currentTime = startTime;
-            setCurrentTime(startTime);
-        }
+        setCurrentTime(startTime);
     }
   }, [currentScript]);
 
@@ -211,8 +211,11 @@ const VakClientApp = () => {
   const togglePlay = () => {
     if (!audioRef.current) return;
     
-    // Safety: If audio isn't ready or failed to load
-    if (errorMsg) return;
+    // Retry logic if previously errored
+    if (errorMsg) {
+        setErrorMsg(null);
+        audioRef.current.load();
+    }
     
     if (isPlaying) {
       audioRef.current.pause();
@@ -222,12 +225,15 @@ const VakClientApp = () => {
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
           playPromise
-            .then(() => { setIsPlaying(true); setErrorMsg(null); })
+            .then(() => { 
+                setIsPlaying(true); 
+                setErrorMsg(null); 
+            })
             .catch(err => {
                 if (err.name !== 'AbortError') {
                     console.error("Playback prevented:", err);
                     setIsPlaying(false);
-                    // Don't show error immediately on auto-play prevention, mostly likely interaction needed
+                    // Don't show error immediately on auto-play prevention
                 }
             });
       }
@@ -238,16 +244,36 @@ const VakClientApp = () => {
     if (!audioRef.current) return;
 
     if (errorMsg) {
-        // Retry logic: If user clicks a word, try clearing error and playing
         setErrorMsg(null);
-        if(audioRef.current.error) audioRef.current.load();
+        audioRef.current.load();
     }
     
-    audioRef.current.currentTime = start;
-    stopTimeRef.current = end;
-    audioRef.current.play()
-        .then(() => setIsPlaying(true))
-        .catch(e => console.error(e));
+    // Ensure accurate seek
+    const performSeekAndPlay = () => {
+        audioRef.current.currentTime = start;
+        stopTimeRef.current = end;
+        
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+            playPromise
+            .then(() => setIsPlaying(true))
+            .catch(e => console.error(e));
+        }
+    };
+
+    if(audioRef.current.readyState > 0) {
+        performSeekAndPlay();
+    } else {
+        const onMeta = () => {
+            performSeekAndPlay();
+            audioRef.current.removeEventListener('loadedmetadata', onMeta);
+        };
+        audioRef.current.addEventListener('loadedmetadata', onMeta);
+        // Ensure it's loading
+        if (audioRef.current.networkState === audioRef.current.NETWORK_NO_SOURCE || audioRef.current.networkState === audioRef.current.NETWORK_EMPTY) {
+             audioRef.current.load();
+        }
+    }
   };
 
   const handleTimeUpdate = () => {
@@ -263,12 +289,9 @@ const VakClientApp = () => {
       return;
     }
 
-    // 2. Global Script Stop Logic (The Fix for Long Audio Files)
-    // If we pass the end of the last word, stop.
+    // 2. Global Script Stop Logic
     if (currentScript.content?.length > 0) {
         const lastWordEnd = currentScript.content[currentScript.content.length - 1].end;
-        
-        // Add a tiny buffer (0.5s) so it doesn't feel abrupt
         if (curr > lastWordEnd + 0.5) {
             audioRef.current.pause();
             setIsPlaying(false);
@@ -285,29 +308,35 @@ const VakClientApp = () => {
 
   // Handle Metadata Load (Initial Seek)
   const onLoadedMetadata = () => {
-      setErrorMsg(null); // Clear error on successful load
+      setErrorMsg(null); 
       if (currentScript?.content?.length > 0) {
           const startTime = currentScript.content[0].start;
-          audioRef.current.currentTime = startTime;
-          setCurrentTime(startTime);
+          // Only seek if we are at 0 (initial load) to avoid jumping during playback
+          if(audioRef.current.currentTime === 0) {
+             audioRef.current.currentTime = startTime;
+             setCurrentTime(startTime);
+          }
       }
   };
 
   const handleAudioError = (e) => {
-      // CRITICAL FIX: Ignore errors if no source is set or it's the page itself
+      // Very strict error filtering. 
+      // If src is valid and error occurs, then report.
       if (!e.target.currentSrc || e.target.currentSrc === window.location.href) return;
 
-      // Only report real errors
       if (e.target.error) {
-        console.warn("Audio Load Failed:", e.target.error.message);
-        setErrorMsg("Audio Unavailable");
+        console.warn("Audio Load Failed:", e.target.error);
+        // code 4 is MEDIA_ELEMENT_ERROR: Format not supported
+        if(e.target.error.code === 4) {
+             setErrorMsg("Format Not Supported");
+        } else {
+             setErrorMsg("Audio Unavailable");
+        }
         setIsPlaying(false);
       }
   };
 
   if (!currentScript) return <div className="h-screen bg-slate-950 flex items-center justify-center text-slate-500">Loading Content...</div>;
-
-  const activeAudioSrc = getAudioSrc();
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden">
@@ -492,10 +521,11 @@ const VakClientApp = () => {
             </div>
         </div>
 
+        {/* Audio Element */}
         <audio 
-            key={activeScriptId} // Ensure clean reload on change
+            key={activeScriptId} // Critical: forces re-render on script change
             ref={audioRef}
-            src={activeAudioSrc || ""} // Prevents undefined src
+            src={activeAudioSrc || ""} 
             onTimeUpdate={handleTimeUpdate}
             onEnded={handleEnded}
             onLoadedMetadata={onLoadedMetadata} 
