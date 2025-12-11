@@ -121,7 +121,7 @@ const DATA = [
         "sources": [
           // FIXED: Using absolute URL to GitHub Pages
           { 
-            "src": "https://creativemonk.github.io/vak-app/audio/GuruAshtakam.mp3", 
+            "src": "/vak-app/audio/GuruAshtakam.mp3", 
             "type": "audio/mpeg" 
           }
         ],
