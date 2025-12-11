@@ -9,9 +9,7 @@ const DATA = [
         "title": "Gayatri Mantra",
         "meaning": "We meditate on the glory of that being who has produced this universe; may He enlighten our minds.",
         "sources": [
-          { "src": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Gayatri_Mantra.ogg", "type": "audio/ogg" },
-          // Swapped priority: If MP3 fails, this ensures we have a fallback or the player uses OGG if it supports it better
-          { "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e5/Gayatri_Mantra.ogg/Gayatri_Mantra.ogg.mp3", "type": "audio/mpeg" }
+          { "src": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Gayatri_Mantra.ogg", "type": "audio/ogg" }
         ],
         "content": [
           { "word": "ॐ", "trans": "Om", "start": 0, "end": 0.8 },
@@ -82,8 +80,7 @@ const DATA = [
         "title": "Panchakshari Mantra",
         "meaning": "I bow to Shiva. The five syllables Na-Ma-Śi-Vā-Ya represent the five elements.",
         "sources": [
-          { "src": "https://upload.wikimedia.org/wikipedia/commons/2/23/Om_Namah_Shivaya_Mantra_Chanting.ogg", "type": "audio/ogg" },
-          { "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/23/Om_Namah_Shivaya_Mantra_Chanting.ogg/Om_Namah_Shivaya_Mantra_Chanting.ogg.mp3", "type": "audio/mpeg" }
+          { "src": "https://upload.wikimedia.org/wikipedia/commons/2/23/Om_Namah_Shivaya_Mantra_Chanting.ogg", "type": "audio/ogg" }
         ],
         "content": [
           { "word": "ॐ", "trans": "Om", "start": 0, "end": 3 },
@@ -96,8 +93,7 @@ const DATA = [
         "title": "Mahamrityunjaya Mantra",
         "meaning": "We worship the Three-Eyed One (Lord Shiva), who is fragrant and nourishes all beings.",
         "sources": [
-           { "src": "https://upload.wikimedia.org/wikipedia/commons/5/59/Mahamrityunjaya_Mantra.ogg", "type": "audio/ogg" },
-           { "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/59/Mahamrityunjaya_Mantra.ogg/Mahamrityunjaya_Mantra.ogg.mp3", "type": "audio/mpeg" }
+           { "src": "https://upload.wikimedia.org/wikipedia/commons/5/59/Mahamrityunjaya_Mantra.ogg", "type": "audio/ogg" }
         ],
         "content": [
           { "word": "ॐ", "trans": "Om", "start": 0, "end": 2 },
@@ -123,8 +119,9 @@ const DATA = [
         "title": "Guru Ashtakam",
         "meaning": "Even if one has a beautiful body, a beautiful spouse, fame, and wealth like Mount Meru, if the mind is not surrendered to the Guru's lotus feet, what is the use?",
         "sources": [
+          // FIXED: Using absolute URL to GitHub Pages
           { 
-            "src": "audio/GuruAshtakam.mp3?v=1", 
+            "src": "https://creativemonk.github.io/vak-app/audio/GuruAshtakam.mp3", 
             "type": "audio/mpeg" 
           }
         ],
