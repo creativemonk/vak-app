@@ -32,7 +32,7 @@ const DATA = [
         "title": "Shanti Mantra",
         "meaning": "Lead me from the unreal to the real, lead me from darkness to light, lead me from death to immortality.",
         "sources": [
-           { "src": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Gayatri_Mantra.ogg", "type": "audio/ogg" } 
+          { "src": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Gayatri_Mantra.ogg", "type": "audio/ogg" }
         ],
         "content": [
           { "word": "ॐ", "trans": "Om", "start": 0, "end": 2 },
@@ -49,6 +49,7 @@ const DATA = [
       }
     ]
   },
+
   {
     "id": "vedic",
     "name": "Vedic Suktams",
@@ -70,6 +71,7 @@ const DATA = [
       }
     ]
   },
+
   {
     "id": "shiva",
     "name": "Shiva Stotras",
@@ -93,14 +95,14 @@ const DATA = [
         "title": "Mahamrityunjaya Mantra",
         "meaning": "We worship the Three-Eyed One (Lord Shiva), who is fragrant and nourishes all beings.",
         "sources": [
-           { "src": "https://upload.wikimedia.org/wikipedia/commons/5/59/Mahamrityunjaya_Mantra.ogg", "type": "audio/ogg" }
+          { "src": "https://upload.wikimedia.org/wikipedia/commons/5/59/Mahamrityunjaya_Mantra.ogg", "type": "audio/ogg" }
         ],
         "content": [
           { "word": "ॐ", "trans": "Om", "start": 0, "end": 2 },
           { "word": "त्र्यम्बकं", "trans": "tryambakaṃ", "start": 2, "end": 4 },
           { "word": "यजामहे", "trans": "yajāmahe", "start": 4, "end": 6 },
           { "word": "सुगन्धिं", "trans": "sugandhiṃ", "start": 6, "end": 8 },
-          { "word": "पुष्टिवर्धनम्", "trans": "puṣṭi-vardhanam", "start": 8, "end": 12 },
+          { "word": "पुष्टिवर्धनम्", "trans": "puṣṭि-vardhanam", "start": 8, "end": 12 },
           { "word": "उर्वारुकमिव", "trans": "urvārukam iva", "start": 12, "end": 15 },
           { "word": "बन्धनान्", "trans": "bandhanān", "start": 15, "end": 18 },
           { "word": "मृत्योर्मुक्षीय", "trans": "mṛtyor mukṣīya", "start": 18, "end": 22 },
@@ -109,6 +111,7 @@ const DATA = [
       }
     ]
   },
+
   {
     "id": "guru",
     "name": "Guru Stotras",
@@ -117,12 +120,12 @@ const DATA = [
       {
         "id": "guru_ashtakam",
         "title": "Guru Ashtakam",
-        "meaning": "Even if one has a beautiful body, a beautiful spouse, fame, and wealth like Mount Meru, if the mind is not surrendered to the Guru's lotus feet, what is the use?",
+        "meaning": "Even if one has a beautiful body, a beautiful spouse, fame, and wealth like Mount Meru...",
         "sources": [
-          // FIXED: Using absolute URL to GitHub Pages
-          { 
-            "src": "/vak-app/audio/GuruAshtakam.mp3", 
-            "type": "audio/mpeg" 
+          {
+            // ⭐ FIXED: correct path for Vite + GitHub Pages
+            "src": `${import.meta.env.BASE_URL}audio/GuruAshtakam.mp3`,
+            "type": "audio/mpeg"
           }
         ],
         "content": [
