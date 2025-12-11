@@ -33,7 +33,6 @@ const DATA = [
         "title": "Shanti Mantra",
         "meaning": "Lead me from the unreal to the real, lead me from darkness to light, lead me from death to immortality.",
         "sources": [
-           // Placeholder audio (replace with actual Shanti Mantra audio if available)
            { "src": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Gayatri_Mantra.ogg", "type": "audio/ogg" } 
         ],
         "content": [
@@ -123,7 +122,10 @@ const DATA = [
         "title": "Guru Ashtakam",
         "meaning": "Even if one has a beautiful body, a beautiful spouse, fame, and wealth like Mount Meru, if the mind is not surrendered to the Guru's lotus feet, what is the use?",
         "sources": [
-          { "src": "vak-app/public/audio/GuruAshtakam.mp3", "type": "audio/mpeg" }
+          { 
+            "src": "./audio/GuruAshtakam.mp3", 
+            "type": "audio/mpeg" 
+          }
         ],
         "content": [
           { "word": "शरीरं", "trans": "śarīraṁ", "start": 0, "end": 2 },
