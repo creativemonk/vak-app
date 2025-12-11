@@ -177,7 +177,7 @@ const VakClientApp = () => {
 
   // 4. Audio Source Helper
   const getAudioSrc = () => {
-    if (!currentScript?.sources?.length) return "";
+    if (!currentScript?.sources?.length) return undefined; // Return undefined, not empty string
     const mp3 = currentScript.sources.find(s => s.type === 'audio/mpeg');
     return mp3 ? mp3.src : currentScript.sources[0].src;
   };
@@ -189,7 +189,7 @@ const VakClientApp = () => {
     setIsPlaying(false);
     setActiveWordIndex(-1);
     stopTimeRef.current = null;
-    setErrorMsg(null);
+    setErrorMsg(null); // Clear previous errors immediately
 
     // SEGMENT LOGIC: Jump to start of this chant
     if (audioRef.current && currentScript?.content?.length > 0) {
@@ -206,24 +206,43 @@ const VakClientApp = () => {
 
   const handleEnded = () => {
       setIsPlaying(false);
-      // Optional: Add logic here to autoplay next script in 'allScripts'
   };
 
   const togglePlay = () => {
-    if (!audioRef.current || errorMsg) return;
+    if (!audioRef.current) return;
+    
+    // Safety: If audio isn't ready or failed to load
+    if (errorMsg) return;
+    
     if (isPlaying) {
       audioRef.current.pause();
       stopTimeRef.current = null;
       setIsPlaying(false);
     } else {
-      audioRef.current.play()
-        .then(() => { setIsPlaying(true); setErrorMsg(null); })
-        .catch(e => console.error(e));
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+          playPromise
+            .then(() => { setIsPlaying(true); setErrorMsg(null); })
+            .catch(err => {
+                if (err.name !== 'AbortError') {
+                    console.error("Playback prevented:", err);
+                    setIsPlaying(false);
+                    // Don't show error immediately on auto-play prevention, mostly likely interaction needed
+                }
+            });
+      }
     }
   };
 
   const playWord = (start, end) => {
-    if (!audioRef.current || errorMsg) return;
+    if (!audioRef.current) return;
+
+    if (errorMsg) {
+        // Retry logic: If user clicks a word, try clearing error and playing
+        setErrorMsg(null);
+        if(audioRef.current.error) audioRef.current.load();
+    }
+    
     audioRef.current.currentTime = start;
     stopTimeRef.current = end;
     audioRef.current.play()
@@ -266,6 +285,7 @@ const VakClientApp = () => {
 
   // Handle Metadata Load (Initial Seek)
   const onLoadedMetadata = () => {
+      setErrorMsg(null); // Clear error on successful load
       if (currentScript?.content?.length > 0) {
           const startTime = currentScript.content[0].start;
           audioRef.current.currentTime = startTime;
@@ -273,7 +293,21 @@ const VakClientApp = () => {
       }
   };
 
+  const handleAudioError = (e) => {
+      // CRITICAL FIX: Ignore errors if no source is set or it's the page itself
+      if (!e.target.currentSrc || e.target.currentSrc === window.location.href) return;
+
+      // Only report real errors
+      if (e.target.error) {
+        console.warn("Audio Load Failed:", e.target.error.message);
+        setErrorMsg("Audio Unavailable");
+        setIsPlaying(false);
+      }
+  };
+
   if (!currentScript) return <div className="h-screen bg-slate-950 flex items-center justify-center text-slate-500">Loading Content...</div>;
+
+  const activeAudioSrc = getAudioSrc();
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden">
@@ -325,7 +359,6 @@ const VakClientApp = () => {
                             className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${isOpen ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}
                         >
                             <div className="flex items-center gap-3 font-semibold text-sm">
-                                {/* Icon mapping could be improved, using generic for now if string based */}
                                 {cat.icon}
                                 <span>{cat.name}</span>
                             </div>
@@ -462,11 +495,11 @@ const VakClientApp = () => {
         <audio 
             key={activeScriptId} // Ensure clean reload on change
             ref={audioRef}
-            src={getAudioSrc()}
+            src={activeAudioSrc || ""} // Prevents undefined src
             onTimeUpdate={handleTimeUpdate}
             onEnded={handleEnded}
-            onLoadedMetadata={onLoadedMetadata} // Trigger seek to start
-            onError={(e) => { if(e.target.error) { console.warn("Load Error"); setErrorMsg("Error"); setIsPlaying(false); } }}
+            onLoadedMetadata={onLoadedMetadata} 
+            onError={handleAudioError}
         />
       </div>
     </div>
